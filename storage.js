@@ -38,4 +38,5 @@ function setDayEntry(dateKey, dayEntry) {
 function save() {
   localStorage.setItem("workouts", JSON.stringify(workouts));
   localStorage.setItem("currentDate", currentDate);
+  localStorage.setItem("workouts", JSON.stringify(workouts));
 }

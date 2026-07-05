@@ -197,6 +197,10 @@ function render() {
 
     const completed = isExerciseCompleted(ex);
 
+    if (typeof ex.open !== "boolean") {
+      ex.open = true;
+    }
+
     if (completed && !ex.userToggled) {
       ex.open = false;
     }
@@ -210,9 +214,18 @@ function render() {
     const left = document.createElement("div");
     left.className = "card-left";
 
+    const setsContainer = document.createElement("div");
+    setsContainer.className = "sets";
+
     const toggleBtn = document.createElement("button");
     toggleBtn.textContent = ex.open ? "▼" : "▶";
     toggleBtn.className = "toggleBtn";
+    toggleBtn.onclick = () => {
+      ex.open = !ex.open;
+      ex.userToggled = true;
+      save();
+      render();
+    };
 
     const title = document.createElement("h3");
     title.textContent = ex.name || "Unnamed";
@@ -245,45 +258,90 @@ function render() {
     };
 
     const setsDiv = document.createElement("div");
+    setsDiv.className = "sets-panel";
     setsDiv.classList.toggle("hidden", !ex.open);
-
-    toggleBtn.onclick = () => {
-      ex.open = !ex.open;
-      ex.userToggled = true;
-
-      setsDiv.style.display = ex.open ? "block" : "none";
-      toggleBtn.textContent = ex.open ? "▼" : "▶";
-      toggleBtn.className = "toggleBtn";
-
-      save();
-    };
+    setsDiv.style.display = ex.open ? "block" : "none";
 
     ex.sets.forEach((set) => {
       const row = document.createElement("div");
       row.className = "set-row";
 
-      const text = document.createElement("span");
+      const values = document.createElement("div");
+      values.className = "set-values";
 
-      let lastTapTime = 0;
+      const repsText = document.createElement("span");
+      repsText.className = "set-text";
+
+      const weightText = document.createElement("span");
+      weightText.className = "set-text set-text--secondary";
+
+      const separator = document.createElement("span");
+      separator.className = "set-separator";
+      separator.textContent = "×";
+
       const doubleTapDelay = 280;
 
-      row.addEventListener("touchend", (event) => {
-        const now = Date.now();
-        const isDoubleTap = now - lastTapTime < doubleTapDelay;
+      function bindDoubleTap(element, type, currentValue, onSave) {
+        let lastTapTime = 0;
 
-        if (isDoubleTap) {
-          event.preventDefault();
-          showDeleteUI(set, ex, row);
-        }
+        element.addEventListener("touchend", (event) => {
+          const now = Date.now();
+          const isDoubleTap = now - lastTapTime < doubleTapDelay;
 
-        lastTapTime = now;
-      });
+          if (isDoubleTap) {
+            event.preventDefault();
+            event.stopPropagation();
+            showDialogPopup({
+              title: type === "reps" ? "Muuda seeriat" : "Muuda raskust",
+              message:
+                type === "reps"
+                  ? "Sisesta uus korduste arv."
+                  : "Sisesta uus kaal kilogrammides.",
+              confirmText: "Salvesta",
+              cancelText: "Tühista",
+              inputPlaceholder: String(currentValue),
+              onConfirm: (value) => {
+                const numericValue = Number(value);
+                if (!Number.isFinite(numericValue) || numericValue <= 0) {
+                  return;
+                }
+
+                onSave(numericValue);
+                save();
+                render();
+              },
+            });
+          }
+
+          lastTapTime = now;
+        });
+      }
+
+      function bindDeleteTap(element) {
+        let lastTapTime = 0;
+
+        element.addEventListener("touchend", (event) => {
+          const now = Date.now();
+          const isDoubleTap = now - lastTapTime < doubleTapDelay;
+
+          if (isDoubleTap) {
+            event.preventDefault();
+            event.stopPropagation();
+            showDeleteUI(set, ex, row);
+          }
+
+          lastTapTime = now;
+        });
+      }
 
       function updateUI() {
         const reps = set.actualReps ?? set.plannedReps;
-        text.textContent = `${reps} × ${set.weight}kg`;
-        text.classList.toggle("done", set.done === true);
-        text.classList.toggle("undone", set.done === false);
+        repsText.textContent = `${reps}`;
+        weightText.textContent = `${set.weight}kg`;
+        repsText.classList.toggle("done", set.done === true);
+        repsText.classList.toggle("undone", set.done === false);
+        weightText.classList.toggle("done", set.done === true);
+        weightText.classList.toggle("undone", set.done === false);
       }
 
       const doneBtn = document.createElement("button");
@@ -329,14 +387,44 @@ function render() {
         });
       };
 
+      bindDoubleTap(repsText, "reps", set.plannedReps, (value) => {
+        set.plannedReps = value;
+      });
+
+      bindDoubleTap(weightText, "weight", set.weight, (value) => {
+        set.weight = value;
+      });
+
+      bindDeleteTap(values);
+
       updateUI();
 
-      row.appendChild(text);
+      values.appendChild(repsText);
+      values.appendChild(separator);
+      values.appendChild(weightText);
+      row.appendChild(values);
       row.appendChild(doneBtn);
       row.appendChild(undoneBtn);
       setsDiv.appendChild(row);
     });
 
+    const addSetBtn = document.createElement("button");
+    addSetBtn.className = "addSetBtn";
+    addSetBtn.textContent = "+ Lisa seeria";
+
+    addSetBtn.onclick = () => {
+      ex.sets.push({
+        plannedReps: ex.sets[ex.sets.length - 1]?.plannedReps || 10,
+        actualReps: null,
+        weight: ex.sets[ex.sets.length - 1]?.weight || 0,
+        done: null,
+      });
+
+      save();
+      render();
+    };
+
+    setsDiv.appendChild(addSetBtn);
     card.appendChild(header);
     card.appendChild(setsDiv);
     list.appendChild(card);

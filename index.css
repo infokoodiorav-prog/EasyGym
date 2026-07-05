@@ -290,6 +290,32 @@ button * {
   pointer-events: none;
 }
 
+.toggleBtn {
+  transition: transform 0.15s ease;
+}
+
+.toggleBtn:active {
+  transform: scale(0.95);
+}
+
+.sets-panel {
+  overflow: hidden;
+  transition:
+    max-height 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.sets-panel.hidden {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sets-panel:not(.hidden) {
+  max-height: 500px;
+  opacity: 1;
+}
+
 .completion-popup__actions button:first-child {
   background: #2563eb;
   color: white;
@@ -478,12 +504,36 @@ button * {
 }
 .set-row {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 10px;
   padding: 6px 0;
   align-items: center;
-
   transition: background 0.15s ease;
+}
+
+.set-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.set-text {
+  font-weight: 600;
+  color: #111827;
+}
+
+.set-text--secondary {
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.set-separator {
+  color: #6b7280;
+  font-weight: 700;
+  pointer-events: none;
+  user-select: none;
 }
 
 .set-row:hover {
@@ -492,6 +542,21 @@ button * {
 }
 .set-actions {
   gap: 20px;
+}
+.addSetBtn {
+  margin-top: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background: #e0e5ec;
+  cursor: pointer;
+}
+.addSetBtn:hover {
+  box-shadow:
+    4px 4px 10px #bec3cf,
+    -4px -4px 10px #ffffff,
+    inset 4px 4px 10px #bec3cf,
+    inset -4px -4px 10px #ffffff;
 }
 .repsDone {
   font-weight: bold;
