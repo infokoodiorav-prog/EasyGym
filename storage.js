@@ -1,9 +1,6 @@
 let workouts = safeParse(localStorage.getItem("workouts"));
 
-let currentDate =
-  localStorage.getItem("currentDate") || formatLocalDate(new Date());
-
-currentDate = formatLocalDate(new Date(currentDate));
+let currentDate = formatLocalDate(new Date());
 
 function getDayEntry(dateKey) {
   const existing = workouts[dateKey];
