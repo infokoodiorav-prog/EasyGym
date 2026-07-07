@@ -229,6 +229,25 @@ function render() {
 
     const title = document.createElement("h3");
     title.textContent = ex.name || "Unnamed";
+    title.style.cursor = "pointer";
+    title.title = "Klõpsa nime muutmiseks";
+    title.onclick = () => {
+      showDialogPopup({
+        title: "Muuda harjutuse nime",
+        message: "Sisesta uus harjutuse nimi.",
+        confirmText: "Salvesta",
+        cancelText: "Tühista",
+        inputPlaceholder: ex.name || "Unnamed",
+        onConfirm: (value) => {
+          const nextName = value?.trim();
+          if (!nextName) return;
+
+          ex.name = nextName;
+          save();
+          render();
+        },
+      });
+    };
     card.classList.toggle("completed", isExerciseCompleted(ex));
 
     const deleteBtn = document.createElement("button");

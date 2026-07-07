@@ -18,20 +18,23 @@
         <div class="logo">
           <img src="logo.png" alt="EasyGym Logo" />
         </div>
-        <nav class="nav" id="nav">
-          <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Services</a></li>
-            <li><a href="#">Contact</a></li>
-          </ul>
-        </nav>
+        <button
+          class="burger"
+          id="burgerBtn"
+          aria-expanded="false"
+          aria-controls="navMenu"
+        >
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+        </button>
 
-        <div class="burger">
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
-        </div>
+        <nav class="nav-menu hidden" id="navMenu" aria-label="Main navigation">
+          <a href="#">Home</a>
+          <a href="#">About</a>
+          <a href="#">Services</a>
+          <a href="#">Contact</a>
+        </nav>
       </div>
       <hr class="hr" />
       <div class="top-picker">
